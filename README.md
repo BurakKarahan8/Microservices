@@ -43,7 +43,7 @@ Proje, Domain-Driven Design (DDD) yaklaşımıyla aşağıdaki teknoloji yığı
 | Servis | Port | Veritabanı | Sorumluluklar |
 |--------|------|-----------|--------------|
 | **API Gateway** | 8085 | - | Tek giriş noktası, JWT doğrulama, Yönlendirme |
-| **Discovery Server** | 8761 | - | Servis Kayıt Merkezi (Eureka) |
+| **Discovery Server** | 8090 | - | Servis Kayıt Merkezi (Eureka) |
 | **Identity Service** | 8086 | MySQL | Kullanıcı kaydı, Giriş, Token yönetimi |
 | **Product Service** | 8080 | MongoDB | Ürün kataloğu yönetimi (CRUD) |
 | **Inventory Service** | 8082 | MySQL | Gerçek zamanlı stok kontrolü |
@@ -152,7 +152,7 @@ Sistem çalıştıktan sonra aşağıdaki adreslere erişebilirsiniz:
 
 | Servis | URL | Açıklama |
 |--------|-----|----------|
-| Eureka Dashboard | http://localhost:8761 | Servis kayıt merkezi |
+| Eureka Dashboard | http://localhost:8090 | Servis kayıt merkezi |
 | API Gateway | http://localhost:8085 | Ana API endpoint |
 | RabbitMQ Management | http://localhost:15672 | Mesaj kuyruğu yönetimi (guest/guest) |
 | Product Service | http://localhost:8080 | Doğrudan erişim (önerilmez) |
