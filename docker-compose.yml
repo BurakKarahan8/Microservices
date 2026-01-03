@@ -1,4 +1,5 @@
 services:
+  # --- ALTYAPI SERVİSLERİ ---
   mongo:
     image: mongo:latest
     container_name: microservices-mongo
@@ -17,18 +18,160 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
-    restart: always
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: microservices-rabbitmq
     ports:
       - "5673:5672"
-      - "25672:15672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-    restart: always
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+
+  # --- BİZİM MİKROSERVİSLER ---
+  discovery-server:
+    build: ./discovery-server
+    container_name: discovery-server
+    ports:
+      - "8090:8090"
+    environment:
+      - SERVER_PORT=8090
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+      - EUREKA_CLIENT_FETCH_REGISTRY=false
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8085:8085"
+    environment:
+      - SERVER_PORT=8085
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8090/eureka/
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - JWT_SECRET=${JWT_SECRET}
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_INSTANCE_HOSTNAME=api-gateway
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - discovery-server
+      - zipkin
+
+  product-service:
+    build: ./product-service
+    container_name: product-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/product-service
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8090/eureka/
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_INSTANCE_HOSTNAME=product-service
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
+      - mongo
+      - discovery-server
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVER_PORT=8081
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/order-service
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8090/eureka/
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_INSTANCE_HOSTNAME=order-service
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
+      - mysql
+      - rabbitmq
+      - discovery-server
+
+  inventory-service:
+    build: ./inventory-service
+    container_name: inventory-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SERVER_PORT=8082
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/inventory-service
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8090/eureka/
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_INSTANCE_HOSTNAME=inventory-service
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
+      - mysql
+      - discovery-server
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SERVER_PORT=8084
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8090/eureka/
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_INSTANCE_HOSTNAME=notification-service
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
+      - rabbitmq
+      - discovery-server
+
+  identity-service:
+    build: ./identity-service
+    container_name: identity-service
+    ports:
+      - "8086:8086"
+    environment:
+      - SERVER_PORT=8086
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/identity-service
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8090/eureka/
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - JWT_SECRET=${JWT_SECRET}
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_INSTANCE_HOSTNAME=identity-service
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
+      - mysql
+      - discovery-server
 
 volumes:
   mongo-data:

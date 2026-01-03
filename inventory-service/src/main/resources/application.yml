@@ -6,7 +6,7 @@ spring:
     name: inventory-service
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/inventory-service
+    url: jdbc:mysql://mysql:3306/inventory-service?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
     username: ${MYSQL_USER}
     password: ${MYSQL_PASSWORD}
   jpa:
@@ -19,8 +19,14 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://discovery-server:8090/eureka/
   instance:
     prefer-ip-address: true
-    ip-address: 127.0.0.1
-    instance-id: ${spring.application.name}:${server.port}
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: "http://zipkin:9411/api/v2/spans"
