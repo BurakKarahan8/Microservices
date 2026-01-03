@@ -1,316 +1,620 @@
-# 🚀 Spring Boot Microservices E-commerce Practice
+# 🚀 Spring Boot Mikroservis E-ticaret Projesi
 
-![Java](https://img.shields.io/badge/Java-17-orange.svg)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.2-green.svg)
-![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)
-![Architecture](https://img.shields.io/badge/Architecture-Microservices-purple.svg)
+[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://img.shields.io/badge/Java-17-orange.svg)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.2-green.svg)](https://img.shields.io/badge/Spring%20Boot-3.2.2-green.svg)
+[![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)](https://img.shields.io/badge/Docker-Enabled-blue.svg)
+[![Architecture](https://img.shields.io/badge/Architecture-Microservices-purple.svg)](https://img.shields.io/badge/Architecture-Microservices-purple.svg)
 
-This repository represents a comprehensive practice application built on Microservices Architecture using the Java Spring Boot ecosystem. The main goal of the project is to implement essential microservices patterns such as Service Discovery, API Gateway, Centralized Authentication, Distributed Tracing, and Event-Driven Communication.
+Bu depo, Java Spring Boot ekosistemini kullanarak Mikroservis Mimarisi üzerine yapılmış kapsamlı bir e-ticaret uygulamasıdır. Proje, modern mikroservis desenlerini ve Docker konteynerizasyonunu kullanarak ölçeklenebilir ve bakımı kolay bir sistem sunmaktadır.
 
-## 🏗️ Technical Architecture
+## 📋 İçindekiler
 
-The project is built using the following technology stack with a Domain-Driven Design (DDD) approach:
-
-- **Core Framework:** Java 17, Spring Boot 3.2.2
-- **Service Discovery:** Netflix Eureka
-- **API Gateway:** Spring Cloud Gateway (Routing & Custom Filters)
-- **Security:** Spring Security 6 & JWT (JSON Web Tokens)
-- **Databases:**
-  - **MySQL:** Relational data for Identity, Order, and Inventory services
-  - **MongoDB:** NoSQL document store for Product service
-- **Asynchronous Messaging:** RabbitMQ (Event-driven notification system)
-- **Resilience & Fault Tolerance:** Resilience4j (Circuit Breaker implementation)
-- **Containerization:** Docker & Docker Compose
-- **Configuration:** Spring-dotenv (Secure environment variable management)
-
-## 🧩 Services Overview
-
-The system consists of the following independently operating services:
-
-| Service Name | Port | Database | Responsibilities |
-|------------|------|------------|---------------|
-| Api Gateway | 8085 | - | Single entry point, JWT validation, Routing |
-| Discovery Server | 8761 | - | Service Registry (Eureka Server) |
-| Identity Service | 8086 | MySQL | User Registration, Login, Token Generation |
-| Product Service | 8080 | MongoDB | Product Catalog Management (CRUD) |
-| Inventory Service | 8082 | MySQL | Real-time stock control |
-| Order Service | 8081 | MySQL | Order processing, Business logic, Event publishing |
-| Notification Service | 8084 | - | Consuming RabbitMQ events (Email simulation) |
-
-## 🚀 How to Run?
-
-### Prerequisites
-
-- JDK 17+
-- Docker Desktop & Docker Compose
-- Maven
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/BurakKarahan8/DigitalCarsi.git
-cd DigitalCarsi
-```
-
-### 2. Configure Environment Variables
-
-🔐 To ensure security, sensitive data is not shared within the code. Create a `.env` file in the project root directory and paste the following settings:
-
-```properties
-# Database Configuration
-MYSQL_ROOT_PASSWORD=rootpassword
-MYSQL_USER=root
-MYSQL_PASSWORD=rootpassword
-
-# Message Broker
-RABBITMQ_USER=guest
-RABBITMQ_PASSWORD=guest
-
-# Security (JWT)
-JWT_SECRET=5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
-```
-
-> **Note:** If you plan to run services individually through an IDE, ensure that the `.env` file is in the relevant service directory or defined in Run/Debug configurations.
-
-### 3. Build and Run with Docker
-
-🐳 You can spin up the entire infrastructure (Databases, Broker, Services) with a single command:
-
-```bash
-# Package the application
-mvn clean package -DskipTests
-
-# Start the containers
-docker-compose up -d
-```
-
-## 🔌 API Usage Examples
-
-All requests are routed through the API Gateway (Port 8085).
-
-### 🔐 1. Authentication
-
-**Step 1:** Create a new user registration.
-
-```http
-POST /auth/register
-```
-
-```json
-{
-  "name": "developer",
-  "email": "dev@example.com",
-  "password": "password123"
-}
-```
-
-**Step 2:** Login to obtain a JWT Token.
-
-```http
-POST /auth/token
-```
-
-```json
-{
-  "username": "developer",
-  "password": "password123"
-}
-```
-
-A **Bearer Token** will be returned in the response. Copy this token for the next steps.
-
-### 📦 2. Order System (Secured)
-
-**Place an Order**
-
-**Required Header:** `Authorization: Bearer <TOKEN>`
-
-```http
-POST /api/order
-```
-
-```json
-{
-  "orderLineItemsDtoList": [
-    {
-      "skuCode": "iphone_15",
-      "price": 1200,
-      "quantity": 1
-    }
-  ]
-}
-```
-
-**Flow Diagram:**
-
-1. API Gateway validates the token
-2. Order Service receives the request
-3. Synchronous call to Inventory Service for stock verification
-4. If in stock → Order is saved to MySQL
-5. An asynchronous event is sent to RabbitMQ
-6. Notification Service consumes this event
-
-## 🛡️ Circuit Breaker Pattern
-
-The system uses **Resilience4j** to handle failures gracefully. If the Inventory Service crashes or slows down, the Order Service returns a predefined "fallback" response instead of blocking the entire system. This ensures system stability.
-
-## 👨‍💻 Author
-
-**Burak Karahan** - Software Engineer
-
-
-***
----
-***
-
-
-# 🚀 Spring Boot Mikroservis E-ticaret Alıştırması
-
-![Java](https://img.shields.io/badge/Java-17-orange.svg)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.2-green.svg)
-![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)
-![Architecture](https://img.shields.io/badge/Architecture-Microservices-purple.svg)
-
-Bu depo, Java Spring Boot ekosistemini kullanarak Mikroservis Mimarisi üzerine yapılmış kapsamlı bir uygulama çalışmasını temsil eder. Projenin temel amacı; Hizmet Keşfi (Service Discovery), API Gateway, Merkezi Kimlik Doğrulama, Dağıtık İzleme ve Olay Güdümlü İletişim (Event-Driven Communication) gibi temel mikroservis desenlerini uygulamaktır.
+- [Teknik Mimari](#-teknik-mimari)
+- [Servisler](#-servisler)
+- [Docker ile Kurulum](#-docker-ile-kurulum)
+- [API Kullanımı](#-api-kullanımı)
+- [Özellikler](#-özellikler)
+- [Geliştirme](#-geliştirme)
 
 ## 🏗️ Teknik Mimari
 
 Proje, Domain-Driven Design (DDD) yaklaşımıyla aşağıdaki teknoloji yığını kullanılarak inşa edilmiştir:
 
+### Temel Teknolojiler
 - **Çekirdek Çerçeve:** Java 17, Spring Boot 3.2.2
 - **Hizmet Keşfi:** Netflix Eureka
 - **API Gateway:** Spring Cloud Gateway (Yönlendirme & Özel Filtreler)
 - **Güvenlik:** Spring Security 6 & JWT (JSON Web Tokens)
-- **Veritabanları:**
-  - **MySQL:** Kimlik (Identity), Sipariş (Order) ve Envanter (Inventory) servisleri için ilişkisel veri
-  - **MongoDB:** Ürün (Product) servisi için NoSQL doküman deposu
-- **Asenkron Mesajlaşma:** RabbitMQ (Olay güdümlü bildirim sistemi)
-- **Dayanıklılık & Hata Toleransı:** Resilience4j (Circuit Breaker uygulaması)
-- **Konteynerleştirme:** Docker & Docker Compose
-- **Yapılandırma:** Spring-dotenv (Güvenli ortam değişkeni yönetimi)
+- **Konteynerizasyon:** Docker & Docker Compose
 
-## 🧩 Servislere Genel Bakış
+### Veritabanları
+- **MySQL:** Identity, Order ve Inventory servisleri için
+- **MongoDB:** Product servisi için NoSQL doküman deposu
 
-Sistem, birbirlerinden bağımsız çalışan aşağıdaki servislerden oluşmaktadır:
+### Mesajlaşma & Dayanıklılık
+- **RabbitMQ:** Asenkron olay güdümlü mesajlaşma
+- **Resilience4j:** Circuit Breaker pattern implementasyonu
 
-| Servis Adı | Port | Veritabanı | Sorumluluklar |
-|------------|------|------------|---------------|
-| Api Gateway | 8085 | - | Tek giriş noktası, JWT doğrulama, Yönlendirme |
-| Discovery Server | 8761 | - | Hizmet Kayıt Defteri (Eureka Server) |
-| Identity Service | 8086 | MySQL | Kullanıcı Kaydı, Giriş, Token Oluşturma |
-| Product Service | 8080 | MongoDB | Ürün Kataloğu Yönetimi (CRUD) |
-| Inventory Service | 8082 | MySQL | Gerçek zamanlı stok kontrolü |
-| Order Service | 8081 | MySQL | Sipariş işleme, Mantıksal yönetim, Event yayınlama |
-| Notification Service | 8084 | - | RabbitMQ olaylarını tüketme (E-posta simülasyonu) |
+### Yapılandırma
+- **Spring-dotenv:** Güvenli ortam değişkeni yönetimi
 
-## 🚀 Nasıl Çalıştırılır?
+## 🧩 Servisler
+
+| Servis | Port | Veritabanı | Sorumluluklar |
+|--------|------|-----------|--------------|
+| **API Gateway** | 8085 | - | Tek giriş noktası, JWT doğrulama, Yönlendirme |
+| **Discovery Server** | 8761 | - | Servis Kayıt Merkezi (Eureka) |
+| **Identity Service** | 8086 | MySQL | Kullanıcı kaydı, Giriş, Token yönetimi |
+| **Product Service** | 8080 | MongoDB | Ürün kataloğu yönetimi (CRUD) |
+| **Inventory Service** | 8082 | MySQL | Gerçek zamanlı stok kontrolü |
+| **Order Service** | 8081 | MySQL | Sipariş işleme, İş mantığı, Event yayınlama |
+| **Notification Service** | 8084 | - | RabbitMQ event'lerini tüketme |
+
+## 🐳 Docker ile Kurulum
 
 ### Ön Gereksinimler
 
-- JDK 17+
-- Docker Desktop & Docker Compose
-- Maven
+Sisteminizde aşağıdaki araçların kurulu olması gerekmektedir:
 
-### 1. Depoyu Klonlayın
+- **Docker Desktop** (v20.10+)
+- **Docker Compose** (v2.0+)
+- **Git**
+- **JDK 17** (opsiyonel - sadece yerel geliştirme için)
+- **Maven** (opsiyonel - sadece yerel geliştirme için)
+
+### 1️⃣ Projeyi Klonlama
+
 ```bash
-git clone https://github.com/BurakKarahan8/DigitalCarsi.git
-cd DigitalCarsi
+git clone https://github.com/BurakKarahan8/Microservices.git
+cd Microservices
 ```
 
-### 2. Ortam Değişkenlerini Yapılandırın
+### 2️⃣ Ortam Değişkenlerini Yapılandırma
 
-🔐 Güvenliği sağlamak için hassas veriler kod içerisinde paylaşılmamıştır. Projenin kök dizininde bir `.env` dosyası oluşturun ve aşağıdaki ayarları yapıştırın:
-```properties
-# Database Configuration
+🔐 Güvenlik nedeniyle hassas veriler kod içinde yer almamaktadır. Projenin kök dizininde bir `.env` dosyası oluşturun:
+
+```bash
+# Linux/Mac
+touch .env
+
+# Windows (PowerShell)
+New-Item .env
+```
+
+`.env` dosyasının içeriğini aşağıdaki gibi düzenleyin:
+
+```env
+# MySQL Veritabanı Ayarları
 MYSQL_ROOT_PASSWORD=rootpassword
 MYSQL_USER=root
 MYSQL_PASSWORD=rootpassword
 
-# Message Broker
+# RabbitMQ Mesaj Broker Ayarları
 RABBITMQ_USER=guest
 RABBITMQ_PASSWORD=guest
 
-# Security (JWT)
+# JWT Güvenlik Anahtarı
 JWT_SECRET=5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
 ```
 
-> **Not:** Servisleri IDE üzerinden tek tek çalıştıracaksanız, `.env` dosyasının ilgili servisin dizininde olduğundan veya Run/Debug ayarlarında tanımlandığından emin olun.
+> ⚠️ **Güvenlik Notu:** Production ortamında bu değerleri mutlaka değiştirin ve güçlü parolalar kullanın!
 
-### 3. Docker ile Derleme ve Çalıştırma
+### 3️⃣ Docker Container'ları Başlatma
 
-🐳 Tüm altyapıyı (Veritabanları, Broker, Servisler) tek bir komutla ayağa kaldırabilirsiniz:
+Projeyi Docker ile çalıştırmak için iki seçeneğiniz var:
+
+#### Seçenek A: Önceden Build Edilmiş İmajlar (Önerilen)
+
 ```bash
-# Uygulamayı paketleyin
+# Tüm servisleri arka planda başlat
+docker-compose up -d
+
+# Logları takip et (opsiyonel)
+docker-compose logs -f
+```
+
+#### Seçenek B: Projeyi Build Edip Çalıştırma
+
+```bash
+# Maven ile projeyi paketleyin
 mvn clean package -DskipTests
 
-# Konteynerleri başlatın
-docker-compose up -d
+# Docker imajlarını oluştur ve container'ları başlat
+docker-compose up --build -d
 ```
 
-## 🔌 API Kullanım Örnekleri
+### 4️⃣ Servislerin Durumunu Kontrol Etme
 
-Tüm istekler API Gateway (Port 8085) üzerinden yönlendirilir.
+```bash
+# Çalışan container'ları listele
+docker-compose ps
 
-### 🔐 1. Kimlik Doğrulama (Authentication)
+# Tüm servislerin loglarını görüntüle
+docker-compose logs
 
-**Adım 1:** Yeni bir kullanıcı kaydı oluşturun.
-```http
-POST /auth/register
+# Belirli bir servisin loglarını görüntüle
+docker-compose logs identity-service
 ```
+
+### 5️⃣ Servislerin Hazır Olmasını Bekleyin
+
+İlk başlatmada servislerin ayağa kalkması 2-3 dakika sürebilir. Eureka Dashboard'dan servislerin durumunu kontrol edebilirsiniz:
+
+```
+http://localhost:8761
+```
+
+Tüm servisler yeşil renkte gözüküyorsa sistem kullanıma hazırdır! ✅
+
+## 🌐 Servis URL'leri
+
+Sistem çalıştıktan sonra aşağıdaki adreslere erişebilirsiniz:
+
+| Servis | URL | Açıklama |
+|--------|-----|----------|
+| Eureka Dashboard | http://localhost:8761 | Servis kayıt merkezi |
+| API Gateway | http://localhost:8085 | Ana API endpoint |
+| RabbitMQ Management | http://localhost:15672 | Mesaj kuyruğu yönetimi (guest/guest) |
+| Product Service | http://localhost:8080 | Doğrudan erişim (önerilmez) |
+| Order Service | http://localhost:8081 | Doğrudan erişim (önerilmez) |
+| Inventory Service | http://localhost:8082 | Doğrudan erişim (önerilmez) |
+| Identity Service | http://localhost:8086 | Doğrudan erişim (önerilmez) |
+| Zipkin | http://localhost:9411/ | Dağıtılmış İzleme Kontrol Paneli |
+
+> 💡 **Not:** Tüm isteklerinizi API Gateway (port 8085) üzerinden yapmanız önerilir.
+
+## 🔌 API Kullanımı
+
+### 🔐 Kimlik Doğrulama (Authentication)
+
+#### 1. Kullanıcı Kaydı
+
+**Endpoint:** `POST http://localhost:8085/auth/register`
+
+**Request Body:**
 ```json
 {
-  "name": "developer",
-  "email": "dev@example.com",
-  "password": "password123"
+  "name": "Ahmet Yılmaz",
+  "email": "ahmet@example.com",
+  "password": "Guvenli123!"
 }
 ```
 
-**Adım 2:** JWT Token almak için giriş yapın.
-```http
-POST /auth/token
-```
+**Response:**
 ```json
 {
-  "username": "developer",
-  "password": "password123"
+  "message": "User registered successfully",
+  "userId": "123e4567-e89b-12d3-a456-426614174000"
 }
 ```
 
-Yanıt olarak bir **Bearer Token** dönecektir. Diğer adımlar için bu token'ı kopyalayın.
+#### 2. Giriş Yapma ve Token Alma
 
-### 📦 2. Sipariş Sistemi (Güvenli)
+**Endpoint:** `POST http://localhost:8085/auth/token`
 
-**Sipariş Ver**
-
-**Header Gerekli:** `Authorization: Bearer <TOKEN>`
-```http
-POST /api/order
+**Request Body:**
+```json
+{
+  "username": "ahmet@example.com",
+  "password": "Guvenli123!"
+}
 ```
+
+**Response:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresIn": 3600
+}
+```
+
+> 💡 Bu token'ı sonraki isteklerinizde `Authorization: Bearer <TOKEN>` header'ında kullanacaksınız.
+
+### 📦 Ürün İşlemleri
+
+#### Ürün Listesini Görüntüleme
+
+**Endpoint:** `GET http://localhost:8085/api/product`
+
+**Headers:**
+```
+Authorization: Bearer <TOKEN>
+```
+
+**Response:**
+```json
+[
+  {
+    "id": "507f1f77bcf86cd799439011",
+    "name": "iPhone 15 Pro",
+    "description": "Apple'ın en yeni flagship telefonu",
+    "price": 45000
+  }
+]
+```
+
+#### Yeni Ürün Ekleme
+
+**Endpoint:** `POST http://localhost:8085/api/product`
+
+**Headers:**
+```
+Authorization: Bearer <TOKEN>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "name": "MacBook Pro M3",
+  "description": "Apple M3 çipli profesyonel dizüstü bilgisayar",
+  "price": 85000
+}
+```
+
+### 🛒 Sipariş İşlemleri
+
+#### Sipariş Verme
+
+**Endpoint:** `POST http://localhost:8085/api/order`
+
+**Headers:**
+```
+Authorization: Bearer <TOKEN>
+Content-Type: application/json
+```
+
+**Request Body:**
 ```json
 {
   "orderLineItemsDtoList": [
     {
-      "skuCode": "iphone_15",
-      "price": 1200,
+      "skuCode": "iphone_15_pro",
+      "price": 45000,
+      "quantity": 2
+    },
+    {
+      "skuCode": "airpods_pro",
+      "price": 8000,
       "quantity": 1
     }
   ]
 }
 ```
 
-**Akış Şeması:**
+**Response (Başarılı):**
+```json
+{
+  "message": "Order placed successfully",
+  "orderId": "ORD-2024-001234"
+}
+```
 
-1. API Gateway Token'ı doğrular
-2. Order Service isteği alır
-3. Stok kontrolü için Inventory Service'e senkron çağrı yapılır
-4. Stok varsa → Sipariş MySQL'e kaydedilir
-5. RabbitMQ'ya asenkron bir event gönderilir
-6. Notification Service bu event'i tüketir
+**Response (Stok Yetersiz):**
+```json
+{
+  "error": "Product is not in stock",
+  "skuCode": "iphone_15_pro"
+}
+```
 
-## 🛡️ Circuit Breaker Deseni
+### 📊 İş Akışı
 
-Sistem, hataları zarif bir şekilde yönetmek için **Resilience4j** kullanır. Eğer Inventory Service çökerse veya yavaşlarsa, Order Service tüm sistemi kilitlemek yerine önceden tanımlanmış bir "fallback" (hata dönüşü) yanıtı verir. Bu, sistemin kararlılığını sağlar.
+Sipariş verme işlemi şu adımlardan oluşur:
+
+1. **API Gateway** → Token'ı doğrular ve isteği yönlendirir
+2. **Order Service** → Siparişi alır
+3. **Inventory Service** → Stok kontrolü yapılır (Senkron REST çağrısı)
+4. **MySQL** → Sipariş veritabanına kaydedilir (stok varsa)
+5. **RabbitMQ** → Sipariş event'i kuyruğa gönderilir (Asenkron)
+6. **Notification Service** → Event'i tüketir ve bildirim gönderir
+
+```
+[Client] → [API Gateway] → [Order Service] ⇄ [Inventory Service]
+                                    ↓
+                            [MySQL Database]
+                                    ↓
+                              [RabbitMQ]
+                                    ↓
+                         [Notification Service]
+```
+
+## ✨ Özellikler
+
+### 🔒 Güvenlik
+
+- **JWT Token Tabanlı Kimlik Doğrulama:** Stateless authentication
+- **API Gateway Seviyesinde Doğrulama:** Merkezi güvenlik kontrolü
+- **BCrypt Şifreleme:** Parolaların güvenli saklanması
+- **Role-Based Access Control (RBAC):** Rol bazlı yetkilendirme
+
+### 🔄 Circuit Breaker Pattern
+
+Sistem, **Resilience4j** kütüphanesi kullanarak hata toleransı sağlar:
+
+```java
+@CircuitBreaker(name = "inventory", fallbackMethod = "fallbackMethod")
+public boolean checkStock(String skuCode) {
+    // Inventory Service'e çağrı
+}
+
+public boolean fallbackMethod(String skuCode, Exception e) {
+    // Hata durumunda alternatif yanıt
+    return false;
+}
+```
+
+**Avantajlar:**
+- Inventory Service çökse bile sistem çalışmaya devam eder
+- Cascade failure (zincirleme hata) önlenir
+- Sistem dayanıklılığı artar
+
+### 📨 Event-Driven Architecture
+
+Asenkron iletişim için **RabbitMQ** kullanılır:
+
+**Producer (Order Service):**
+```java
+rabbitTemplate.convertAndSend(
+    "order-exchange",
+    "order.created",
+    orderEvent
+);
+```
+
+**Consumer (Notification Service):**
+```java
+@RabbitListener(queues = "order-notification-queue")
+public void handleOrderEvent(OrderEvent event) {
+    // E-posta gönder, SMS at, vb.
+}
+```
+
+### 🔍 Service Discovery
+
+Netflix Eureka ile dinamik servis keşfi:
+
+```yaml
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
+```
+
+**Avantajlar:**
+- Servislerin IP adresleri hardcoded olarak yazılmaz
+- Yeni servis instance'ları otomatik keşfedilir
+- Load balancing için hazır altyapı
+
+## 🛠️ Geliştirme
+
+### Docker Container'ları Durdurma
+
+```bash
+# Tüm container'ları durdur
+docker-compose down
+
+# Container'ları durdurup volume'leri de sil (veritabanı verileri silinir!)
+docker-compose down -v
+
+# Container'ları durdurup imajları da sil
+docker-compose down --rmi all
+```
+
+### Tek Bir Servisi Yeniden Başlatma
+
+```bash
+# Servisi durdur
+docker-compose stop order-service
+
+# Servisi başlat
+docker-compose start order-service
+
+# Servisi yeniden başlat (stop + start)
+docker-compose restart order-service
+```
+
+### Logları İnceleme
+
+```bash
+# Tüm servislerin canlı logları
+docker-compose logs -f
+
+# Belirli bir servisin logları
+docker-compose logs -f order-service
+
+# Son 100 satır log
+docker-compose logs --tail=100 order-service
+```
+
+### Container İçine Bağlanma
+
+```bash
+# MySQL container'ına bağlan
+docker exec -it mysql-db mysql -uroot -p
+
+# MongoDB container'ına bağlan
+docker exec -it mongo-db mongosh
+
+# Herhangi bir container'ın shell'ine bağlan
+docker exec -it order-service sh
+```
+
+### IDE ile Geliştirme (Hybrid Mod)
+
+Bazı servisleri IDE'de çalıştırıp diğerlerini Docker'da çalıştırmak için:
+
+```bash
+# Sadece altyapı servislerini başlat (Veritabanları, RabbitMQ, Eureka)
+docker-compose up -d mysql-db mongo-db rabbitmq discovery-server
+
+# Diğer servisleri IDE'den başlatın
+# application.properties'de localhost:8761 olarak Eureka adresini güncelleyin
+```
+
+### Veritabanı Bağlantısı
+
+**MySQL:**
+```bash
+Host: localhost
+Port: 3306
+Username: root
+Password: rootpassword
+```
+
+**MongoDB:**
+```bash
+Host: localhost
+Port: 27017
+Connection String: mongodb://localhost:27017/product-service
+```
+
+## 🧪 Test Etme
+
+### Postman Collection
+
+Projeyi test etmek için hazır Postman collection oluşturabilirsiniz:
+
+1. Postman'i açın
+2. Import → Raw Text
+3. Aşağıdaki curl komutlarını kullanın
+
+**Örnek Test Senaryosu:**
+
+```bash
+# 1. Kullanıcı kaydı
+curl -X POST http://localhost:8085/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test User","email":"test@test.com","password":"test123"}'
+
+# 2. Token al
+TOKEN=$(curl -X POST http://localhost:8085/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{"username":"test@test.com","password":"test123"}' \
+  | jq -r '.token')
+
+# 3. Ürün listesini getir
+curl -X GET http://localhost:8085/api/product \
+  -H "Authorization: Bearer $TOKEN"
+
+# 4. Sipariş ver
+curl -X POST http://localhost:8085/api/order \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "orderLineItemsDtoList": [
+      {
+        "skuCode": "iphone_15",
+        "price": 45000,
+        "quantity": 1
+      }
+    ]
+  }'
+```
+
+### Health Check
+
+Servislerin sağlık durumunu kontrol edin:
+
+```bash
+# Discovery Server
+curl http://localhost:8761/actuator/health
+
+# API Gateway
+curl http://localhost:8085/actuator/health
+```
+
+## 📚 Öğrenme Kaynakları
+
+Bu proje aşağıdaki konuları öğrenmek için harika bir kaynak:
+
+- ✅ Mikroservis Mimarisi
+- ✅ Spring Boot & Spring Cloud
+- ✅ Docker & Docker Compose
+- ✅ JWT Authentication
+- ✅ Circuit Breaker Pattern
+- ✅ Event-Driven Architecture
+- ✅ Service Discovery
+- ✅ API Gateway Pattern
+- ✅ NoSQL & SQL Veritabanları
+- ✅ Message Queues (RabbitMQ)
+- ✅ Zipkin
+
+## 🐛 Sorun Giderme
+
+### Servisler Ayağa Kalkmıyor
+
+```bash
+# Container loglarını kontrol edin
+docker-compose logs
+
+# Belirli bir servisin logunu detaylı inceleyin
+docker-compose logs -f order-service
+```
+
+### Port Çakışması
+
+Eğer portlar kullanımdaysa, `docker-compose.yml` dosyasındaki port mapping'leri değiştirin:
+
+```yaml
+ports:
+  - "8085:8085"  # 8085 yerine 9085 gibi farklı bir port kullanın
+```
+
+### Veritabanı Bağlantı Hatası
+
+```bash
+# MySQL container'ının çalıştığından emin olun
+docker-compose ps mysql-db
+
+# MySQL loglarını kontrol edin
+docker-compose logs mysql-db
+
+# Container'ı yeniden başlatın
+docker-compose restart mysql-db
+```
+
+### RabbitMQ'ya Bağlanamıyor
+
+```bash
+# RabbitMQ yönetim paneline erişim
+http://localhost:15672
+Kullanıcı adı: guest
+Şifre: guest
+```
+
+### Eureka'da Servis Görünmüyor
+
+- Servisin başlamasını 30 saniye bekleyin (Eureka heartbeat süresi)
+- `application.properties` dosyasında `eureka.client.service-url.defaultZone` ayarını kontrol edin
+
+## 🤝 Katkıda Bulunma
+
+1. Projeyi fork edin
+2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Değişikliklerinizi commit edin (`git commit -m 'Add some amazing feature'`)
+4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
+5. Pull Request açın
+
+## 📝 Lisans
+
+Bu proje eğitim amaçlı geliştirilmiştir ve MIT lisansı altında sunulmaktadır.
 
 ## 👨‍💻 Yazar
 
 **Burak Karahan** - Yazılım Mühendisi
+
+---
+
+## 📞 İletişim & Destek
+
+Sorularınız veya önerileriniz için:
+
+- GitHub Issues: [Sorun Bildir](https://github.com/BurakKarahan8/Microservices/issues)
+- E-posta: [Proje sahibine ulaşın]
+
+---
+
+⭐ Projeyi beğendiyseniz yıldız vermeyi unutmayın!
+
+**Son Güncelleme:** Ocak 2025
